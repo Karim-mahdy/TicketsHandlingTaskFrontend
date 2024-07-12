@@ -1,0 +1,195 @@
+<div class="card">
+  <div class="card-body m-0 row">
+    <!-- <div class="card-body py-2"> -->
+    <div class="col-6 d-flex align-items-center">
+      <h3 class="m-0">ALL TIKETES</h3>
+    </div>
+    <div class="col-6 d-flex justify-content-end">
+      <button class="btn btn-primary w-md" (click)="openModal(addtiket)">
+        <i class="fa fa-plus"></i>
+        Create Ticket
+      </button>
+    </div>
+  </div>
+</div>
+<div class="table-wrap">
+    <table class="table table-borderless table-responsive">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="text-muted fw-600">Ticket’s ID</th>
+          <th class="text-muted fw-600">Phone Number</th>
+          <th class="text-muted fw-600">Date & Time</th>
+          <th class="text-muted fw-600">Governorate</th>
+          <th class="text-muted fw-600">City</th>
+          <th class="text-muted fw-600">District</th>
+          <th class="text-muted fw-600">Handled</th>
+          <th class="text-muted fw-600">Status</th>
+          <th class="text-muted fw-600">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let item of allTickets"
+          class="align-middle alert"
+          role="alert"
+        >
+          <td>
+            <input type="checkbox" id="check" />
+          </td>
+          <td>
+            {{item.id}}
+          </td>
+          <td>
+            {{item.phoneNumber}}
+          </td>
+          <td>
+            <div class="fw-600">{{item.creationDateTime | date:'short'}}</div>
+          </td>
+          <td>
+            <div class="fw-600">{{item.governorate}}</div>
+          </td>
+          <td>
+            <div class="fw-600">{{item.city}}</div>
+          </td>
+          <td>
+            <div class="fw-600">{{item.district}}</div>
+          </td>
+          <td>
+            <div class="fw-600">{{ item.isHandled ? 'Handled' : 'Not Handled' }}</div>
+            
+          </td>
+          
+          <td>
+            <div class="d-inline-flex align-items-center active text-white" [ngStyle]="{'background-color': item.statusColor}">
+              <div>{{item.statusColor}}</div>
+            </div>
+          </td>
+          <td>
+            <ul class="list-inline font-size-20 contact-links mb-0">
+                <li class="list-inline-item px-2 text-info">
+                    <i
+                      class="bi bi-arrow-repeat"
+                      style="cursor: pointer"
+                      (click)="handleTicket(item.id)"
+                    ></i>
+                  </li>
+                <li class="list-inline-item px-2">
+                    <i class="bi bi-pencil-square text-warning" (click)="editModal(addtiket, item)" style="cursor: pointer"></i>
+                  </li>
+              
+              <li class="list-inline-item px-2 text-danger">
+                <i
+                  class="bi bi-trash"
+                  style="cursor: pointer"
+                  (click)="delete(item.id)"
+                ></i>
+              </li>
+             
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <ngb-pagination
+    class="d-flex justify-content-end"
+    [collectionSize]="totalItems"
+    [(page)]="page"
+    [pageSize]="pageSize"
+    (pageChange)="onPageChange($event)"
+  ></ngb-pagination>
+  </div>
+  
+<!-- Add Modal -->
+<ng-template #addtiket role="document" let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title mt-0">
+      <span *ngIf="labelForm == 'EDIT'"></span>
+      <span *ngIf="labelForm == 'ADD'"></span>
+      Ticket
+    </h5>
+    <button
+      type="button"
+      class="btn-close"
+      aria-hidden="true"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <form
+      class="needs-validation"
+      (ngSubmit)="onSubmit()"
+      [formGroup]="ticketForm"
+    >
+    <div class="row">
+        <div class="col-md-12">
+            <div class="mb-3">
+                <label for="validationCustom01">government</label>
+                <!-- <input type="text" class="form-control" id="validationCustom01" formControlName="government"
+                    [ngClass]="{'is-valid': form['government'].dirty && !form['government'].errors ,'is-invalid': form['government'].dirty && form['government'].errors}"> -->
+                    <select class="form-select" aria-label="Default select example" id="validationCustom01" formControlName="government"
+                    [ngClass]="{'is-valid': form['government'].dirty && !form['government'].errors ,'is-invalid': form['government'].dirty && form['government'].errors}" (change)="getAllCities()">
+                            <option *ngFor="let item of allGovernment;"  value="{{item.id}}">{{item.name}}</option>
+                    </select>
+                <div *ngIf="form['government'].dirty && form['government'].errors" class="invalid-feedback">
+                    <span *ngIf="form['government'].errors['required']">This value is required.</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="validationCustom01">city</label>
+                <!-- <input type="text" class="form-control" id="validationCustom01" formControlName="district"
+                    [ngClass]="{'is-valid': form['district'].dirty && !form['district'].errors ,'is-invalid': form['district'].dirty && form['district'].errors}"> -->
+                    <select class="form-select" aria-label="Default select example" id="validationCustom01" formControlName="city"
+                    [ngClass]="{'is-valid': form['city'].dirty && !form['city'].errors ,'is-invalid': form['city'].dirty && form['city'].errors}" (change)="getAllDisticts()">
+                            <option *ngFor="let item of allCities;"  value="{{item.id}}">{{item.name}}</option>
+                    </select>
+                <div *ngIf="form['city'].dirty && form['city'].errors" class="invalid-feedback">
+                    <span *ngIf="form['city'].errors['required']">This value is required.</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="validationCustom01">district</label>
+                <!-- <input type="text" class="form-control" id="validationCustom01" formControlName="district"
+                    [ngClass]="{'is-valid': form['district'].dirty && !form['district'].errors ,'is-invalid': form['district'].dirty && form['district'].errors}"> -->
+                    <select class="form-select" aria-label="Default select example" id="validationCustom01" formControlName="district"
+                    [ngClass]="{'is-valid': form['district'].dirty && !form['district'].errors ,'is-invalid': form['district'].dirty && form['district'].errors}">
+                            <option *ngFor="let item of allDist " value="{{item.id}}">{{item.name}}</option>
+                    </select>
+                <div *ngIf="form['district'].dirty && form['district'].errors" class="invalid-feedback">
+                    <span *ngIf="form['district'].errors['required']">This value is required.</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="validationCustom01">phone</label>
+                <input type="text" class="form-control" id="validationCustom01" formControlName="phoneNumber"
+                    [ngClass]="{'is-valid': form['phoneNumber'].dirty && !form['phoneNumber'].errors ,'is-invalid': form['phoneNumber'].dirty && form['phoneNumber'].errors}">
+                <div *ngIf="form['phoneNumber'].dirty && form['phoneNumber'].errors" class="invalid-feedback">
+                    <span *ngIf="form['phoneNumber'].errors['required']">This value is required.</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+      <div class="w-100 text-center">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          [disabled]="ticketForm.invalid"
+        >
+          <i
+            class="bx bx-loader bx-spin font-size-16 align-middle me-2"
+            *ngIf="loadingForm"
+          ></i>
+          {{ labelForm == "ADD" ? "ADD" : "EDIT" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>
